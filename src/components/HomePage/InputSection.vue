@@ -2,7 +2,7 @@
   <div class="input-section">
     <div class="topic-selector">
       <div class="selector-header">
-        <h3>选择热门话题</h3>
+        <h3>选择话题</h3>
         <p>或在下方的输入框中输入您自己的观点</p>
       </div>
       
@@ -34,7 +34,7 @@
     <div class="input-area">
       <div class="input-wrapper">
         <div class="dynamic-placeholder" :class="{ focused: isInputFocused || userInput }">
-          {{ isInputFocused ? '请大胆表达你的真实观点，无需严谨论证' : '输入你的观点（如"线上办公比线下办公更好"）' }}
+          {{ isInputFocused ? '请大胆输入你想创作的主题' : '输入你的主题（如"线上办公与线下办公哪个更好"）' }}
         </div>
         <textarea
           :value="userInput"
@@ -63,19 +63,26 @@
           </el-icon>
         </button>
       </div>
+      <div class="tips">没有思路？试试下方按钮“生成思维视角”。已有想法，点击“直接开始创作”。</div>
     </div>
-    
     <button
       class="submit-btn"
       :disabled="!userInput.trim()"
       @click="$emit('submit')"
     >
-      生成思维角度
+      生成思维视角
+    </button>
+    <button
+      class="submit-btn"
+      :disabled="!userInput.trim()"
+      @click="$emit('submit2')"
+    >
+      直接开始创作
     </button>
     
     <div v-if="isGenerating" class="loading-tip">
       <el-icon><Loading /></el-icon>
-      正在生成思维角度...
+      正在生成思维视角...
     </div>
   </div>
 </template>
@@ -104,7 +111,7 @@ const props = defineProps({
   }
 });
 
-const emit = defineEmits(['update:userInput', 'submit', 'select-topic']);
+const emit = defineEmits(['update:userInput', 'submit', 'select-topic', 'submit2']);
 
 const isInputFocused = ref(false);
 const isListening = ref(false);
@@ -436,6 +443,13 @@ const selectTopic = (topicId) => {
 
 .voice-btn.listening i {
   animation: spin 2s linear infinite;
+}
+.tips {
+  font-size: 12px;
+  color: #7f8c8d;
+}
+button + button {
+  margin-left: 10px;
 }
 
 .submit-btn {

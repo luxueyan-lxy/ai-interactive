@@ -7,14 +7,14 @@
         class="reset-btn"
         @click="currentStage = 'input'"
         >
-        重新开始
+        返回主页
         </button>
      </div>
     
     <div class="app-container">
       <div class="header">
-        <h2>辅助观点辩证思考</h2>
-        <p>打破思维定式，探索多元视角</p>
+        <h2>智能辅助创作</h2>
+        <p>打开思维方式，探索多元视角</p>
       </div>
       
       <div class="card-container">
@@ -25,6 +25,7 @@
           :topics="presetTopics"
           :selected-topic-id="selectedTopicId"
           @submit="submitOpinion"
+          @submit2="startCreation"
           @select-topic="handleTopicSelect"
         />
         
@@ -40,23 +41,23 @@
           :current-perspective="currentPerspective"
           :ai-feedback="aiFeedback"
           :is-submitting-challenge="isSubmittingChallenge"
+          :is-blindBoxes="isBlindBoxes"
           @submit-challenge="submitChallenge"
           @copy-feedback="copyFeedback"
-          @prev-step="currentStage = 'blindbox'"
+          @prev-step="challengeSectionPrev"
+          @submit-blindbox="submitOpinion"
+          @view-example="viewExample"
         />
         
-        <ComparisonPanel
-          v-if="showComparison"
-          :user-input="userInput"
-          :current-perspective="currentPerspective"
-          :comparison-analysis="comparisonAnalysis"
-          @close="showComparison = false"
-          @confirm="confirmSummary"
-        />
       </div>
     </div>
     
-    
+    <ExamplePanel
+      v-if="showExample"
+      :user-input="userInput"
+      :current-perspective="currentPerspective"
+      @close="showExample = false"
+    />
     
     <UnlockModal
       v-if="showUnlockModal"
@@ -75,7 +76,7 @@ import { ElMessage } from 'element-plus';
 import InputSection from './HomePage/InputSection.vue';
 import BlindBoxSection from './HomePage/BlindBoxSection.vue';
 import ChallengeSection from './HomePage/ChallengeSection.vue';
-import ComparisonPanel from './HomePage/ComparisonPanel.vue';
+import ExamplePanel from './HomePage/ExamplePanel.vue';
 // import ProgressBar from './HomePage/ProgressBar.vue';
 import UnlockModal from './HomePage/UnlockModal.vue';
 import CopySuccess from './HomePage/CopySuccess.vue';
@@ -90,6 +91,8 @@ const isGenerating = ref(false);
 const selectedTopicId = ref(null);
 const isInputFocused = ref(false);
 const isListening = ref(false);
+
+const isBlindBoxes = ref(false);
 
 // 盲盒数据
 const blindBoxes = ref([]);
@@ -111,8 +114,7 @@ const isSubmittingChallenge = ref(false);
 const aiFeedback = ref(null);
 
 // 视角对比
-const showComparison = ref(false);
-const comparisonAnalysis = ref([]);
+const showExample = ref(false);
 
 // 解锁与进度
 const showUnlockModal = ref(false);
@@ -128,7 +130,7 @@ const handleTopicSelect = (topicId) => {
   selectedTopicId.value = topicId;
   const selectedTopic = presetTopics.find(topic => topic.id === topicId);
   if (selectedTopic) {
-    userInput.value = selectedTopic.content;
+    userInput.value = selectedTopic.description;
   }
 };
 
@@ -176,6 +178,7 @@ const submitOpinion = async () => {
   } finally {
       isGenerating.value = false;
       isLoading.value = false;
+      isBlindBoxes.value = true;
   }
   
   // 模拟生成盲盒
@@ -191,6 +194,16 @@ const submitOpinion = async () => {
   //   }, 1500);
   // }, 1500);
 };
+// 开始创作
+const startCreation = () => {
+  isBlindBoxes.value = false;
+  currentStage.value = 'challenge';
+  currentPerspective.value = {
+    type: '',
+    title: userInput,
+    hint: ''
+  };
+}
 
 const openBlindBox = (index) => {
 //   if (blindBoxes.value[index].opened) return;
@@ -219,6 +232,7 @@ const openBlindBox = (index) => {
   setTimeout(() => {
     currentStage.value = 'challenge';
   }, 1000);
+  isBlindBoxes.value = true;
 };
 
 const submitChallenge = async (challengeResponse) => {
@@ -238,12 +252,6 @@ const submitChallenge = async (challengeResponse) => {
           positive: '你的观点很有启发性。',
           suggestion: '可以尝试从更多角度进行思考。'
         };
-        
-        // 显示对比面板
-        // setTimeout(() => {
-        //   showComparison.value = true;
-        // }, 500);      
-
       }
   } catch (error) {
       // 生成AI反馈
@@ -252,13 +260,6 @@ const submitChallenge = async (challengeResponse) => {
         suggestion: '可以尝试从更多角度进行思考。'
       };
       
-      // 生成对比分析
-      comparisonAnalysis.value = [...mockComparisonAnalysis];
-      
-      // 显示对比面板
-      // setTimeout(() => {
-      //   showComparison.value = true;
-      // }, 500);
   } finally {
       isSubmittingChallenge.value = false;
   }
@@ -275,16 +276,17 @@ const submitChallenge = async (challengeResponse) => {
   //     suggestion: '可以尝试从更多角度进行思考。'
   //   };
     
-  //   // 生成对比分析
-  //   comparisonAnalysis.value = [...mockComparisonAnalysis];
-    
   //   // 显示对比面板
   //   setTimeout(() => {
-  //     showComparison.value = true;
+  //     showExample.value = true;
   //   }, 500);
     
   // }, processTime);
 };
+
+const viewExample = () => {
+  showExample.value = true;
+}
 
 const copyFeedback = () => {
   if (!aiFeedback.value) return;
@@ -301,8 +303,16 @@ const copyFeedback = () => {
   });
 };
 
+const challengeSectionPrev = () => {
+  if(isBlindBoxes.value == true) {
+    currentStage.value = 'blindbox';
+  } else {
+    currentStage.value = 'input';
+  }
+};
+
 const confirmSummary = () => {
-  showComparison.value = false;
+  showExample.value = false;
   completedChallenges.value++;
   
   // 检查是否需要显示解锁弹窗

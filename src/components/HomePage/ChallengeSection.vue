@@ -4,7 +4,10 @@
       <div class="current-perspective">{{ currentPerspective.title }}</div>
       <div class="perspective-hint-text">{{ currentPerspective.hint }}</div>
     </div>
-    
+    <div v-if="isBlindBoxes==false">
+      <span>没有想法？试试“生成思维视角”寻找创作视角。</span>
+      <el-button type="text" @click="submitBlindbox">生成思维视角</el-button>
+    </div>
     <div class="response-input-area">
       <div class="response-input-wrapper">
         <textarea
@@ -14,6 +17,12 @@
           rows="20"
         ></textarea>
         <button class="clear-btn" @click="clearResponse">清空</button>
+        <!-- <el-tiptap
+          v-model="challengeResponse"
+          :extensions="extensions"
+          placeholder="请在此处阐述你的观点..."
+          height="400px"
+        /> -->
       </div>
       
       <div class="input-controls">
@@ -31,10 +40,26 @@
           :disabled="!challengeResponse.trim() || isSubmittingChallenge"
           @click="submitChallenge"
         >
-          <span v-if="!isSubmittingChallenge">提交观点</span>
+          <span v-if="!isSubmittingChallenge">AI分析</span>
           <span v-else>
-            <el-icon><Loading /></el-icon> AI正在审核你的观点...
+            <el-icon><Loading /></el-icon> AI正在审核你的看法...
           </span>
+        </button>
+        <button
+          class="submit-btn"
+          :disabled="!challengeResponse.trim() || isPublishChallenge"
+          @click="submitChallenge"
+        >
+          <span v-if="!isPublishChallenge">发表</span>
+          <span v-else>
+            <el-icon><Loading /></el-icon> 正在发表你的看法...
+          </span>
+        </button>
+        <button
+          class="submit-btn"
+          @click="viewExample"
+        >
+          查看示例
         </button>
       </div>
       
@@ -64,6 +89,7 @@
 
 <script setup>
 import { ref, defineProps, defineEmits } from 'vue';
+// import { Text, Document, Paragraph, Bold, Italic, Underline, Strike, BulletList, OrderedList, Link, Image } from 'element-tiptap'
 import { perspectiveTypes } from '../../data/mockData.js';
 
 const props = defineProps({
@@ -78,12 +104,21 @@ const props = defineProps({
   isSubmittingChallenge: {
     type: Boolean,
     default: false
+  },
+  isBlindBoxes: {
+    type: Boolean,
+    default: false
   }
 });
 
-const emit = defineEmits(['submit-challenge', 'copy-feedback']);
+const emit = defineEmits(['submit-challenge', 'copy-feedback', 'submit-blindbox', 'view-example', 'prev-step']);
 
 const challengeResponse = ref('');
+// 配置工具栏扩展（按需引入）
+// const extensions = [Text, Document, Paragraph, Bold, Italic,  Underline, Strike,
+//   BulletList, OrderedList, Link, Image]
+
+const isPublishChallenge = ref(false);
 
 // API基础URL
 const API_BASE = window.API_BASE;
@@ -92,10 +127,18 @@ const clearResponse = () => {
   challengeResponse.value = '';
 };
 
+const submitBlindbox = () => {
+  emit('submit-blindbox');
+}
+
 const submitChallenge = () => {
   if (!challengeResponse.value.trim()) return;
   emit('submit-challenge',challengeResponse.value);
 };
+
+const viewExample = () => {
+  emit('view-example');
+}
 
 const prevStep = () => {
     emit('prev-step');
@@ -257,16 +300,20 @@ const getTagColor = (type) => {
   box-shadow: none;
 }
 .prev-btn {
-  background: linear-gradient(45deg, #2ecc71, #27ae60);
-  color: white;
-  border: none;
+  background: rgba(6, 182, 35, 0.1);
+  color: #27ae60;
+  border: 2px solid #27ae60;
   padding: 12px 40px;
   border-radius: 30px;
   font-size: 18px;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
-  box-shadow: 0 5px 15px rgba(46, 204, 113, 0.3);
-  margin-right: 10px;
+}
+button {
+  margin-bottom: 5px;
+}
+button+button {
+  margin-left:10px;
 }
 </style>
