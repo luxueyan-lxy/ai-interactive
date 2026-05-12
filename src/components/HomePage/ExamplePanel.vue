@@ -160,6 +160,10 @@ const highlightKeywords = (text) => {
   .example-panel {
     width: 100%;
   }
+  .example-panel .example-buttons {
+    width: auto;
+    left:20px;
+  }
 }
 
 .example-header {
@@ -183,7 +187,7 @@ const highlightKeywords = (text) => {
 
 .view-box {
   flex: 1;
-  padding: 20px;
+  padding: 10px;
   border-radius: 15px;
   border: 2px solid #e0e0e0;
 }
@@ -242,6 +246,7 @@ const highlightKeywords = (text) => {
   bottom: 5px;
   right:20px;
   width:460px;
+  background: #fff;
 }
 
 .panel-btn {
@@ -266,14 +271,4 @@ const highlightKeywords = (text) => {
   color: white;
 }
 
-.confirm-btn {
-  background: #2ecc71;
-  color: white;
-  border-color: #2ecc71;
-}
-
-.confirm-btn:hover {
-  background: #27ae60;
-  border-color: #27ae60;
-}
 </style>

@@ -1,8 +1,8 @@
 // 引入axios
 import axios from 'axios';
 
-// 您的访问密钥
-const ACCESS_SECRET = '7775206128646156653';
+// 访问密钥
+const ACCESS_SECRET = 'VrxvFQyuXT29dzTm8TAjfJ1y7b5XyoAu';
 
 // 创建一个配置好的axios实例
 const apiClient = axios.create({

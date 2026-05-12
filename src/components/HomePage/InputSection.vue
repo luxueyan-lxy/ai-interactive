@@ -18,12 +18,13 @@
             <i>{{ index+1 }}</i>
           </div>
           <div class="topic-content">
-            <div class="topic-title">{{ topic.title }}</div>
-            <div class="topic-desc">{{ topic.description }}</div>
+            <div class="topic-title">{{ topic.Title }}</div>
+            <div class="topic-desc">{{ topic.Summary }}</div>
             <div class="topic-tags">
               <span v-for="tag in topic.tags" :key="tag" class="tag">{{ tag }}</span>
             </div>
           </div>
+          <el-button v-if="topic.Url" class="detail-btn" type="text" @click="openDetail(topic)">查看详情</el-button>
           <div v-if="selectedTopicId === topic.id" class="selected-indicator">
             <el-icon><CircleCheck /></el-icon>
           </div>
@@ -88,7 +89,7 @@
 </template>
 
 <script setup>
-import { ref, defineEmits, defineProps, onMounted } from 'vue';
+import { ref, defineEmits, defineProps, onMounted, watch } from 'vue';
 import { fetchData, postData, deleteData } from '../../axiosConfig.js';
 import axios from 'axios';
 
@@ -121,32 +122,23 @@ const hotList = ref([]);
 // API基础URL
 const API_BASE = window.API_BASE;
 
+watch(
+  () => props.topics,
+  (newVal) => {
+    handleClassify();
+  },
+  // { deep: true } 
+)
+
 onMounted(() => {
-  // loadHotList();
   handleClassify();
 });
-
-// 加载热搜列表
-const loadHotList = async () => {
-  try {
-    loading.value = true;
-    let params = {
-      Limit:6
-    }
-    const data = await fetchData('/api/v1/content/hot_list',params);
-    
-  } catch (error) {
-    
-  } finally {
-    loading.value = false;
-  }
-};
 
 // 处理分类
 const handleClassify = async () => {
   hotList.value = props.topics
   for(let i=0; i<props.topics.length; i++) {
-    let tags = await textClassify(props.topics[i].title);
+    let tags = await textClassify(props.topics[i].Title);
     if(tags) hotList.value[i].tags = tags;
   }
 }
@@ -205,6 +197,12 @@ const toggleVoiceInput = () => {
   }
 };
 
+const openDetail = (item) => {
+  if(item.Url) {
+    window.open(item.Url);
+  }
+}
+
 const selectTopic = (topicId) => {
   emit('select-topic', topicId);
 };
@@ -218,7 +216,6 @@ const selectTopic = (topicId) => {
   background: #f8f9fa;
   border-radius: 15px;
   border: 1px solid #e9ecef;
-  height: 472px;
   overflow: auto;
 }
 
@@ -332,6 +329,12 @@ const selectTopic = (topicId) => {
   border-radius: 12px;
   font-size: 11px;
   font-weight: 500;
+}
+
+.detail-btn {
+  position: absolute;
+  bottom:10px;
+  right:10px;
 }
 
 .selected-indicator {
@@ -448,35 +451,6 @@ const selectTopic = (topicId) => {
   font-size: 12px;
   color: #7f8c8d;
 }
-button + button {
-  margin-left: 10px;
-}
-
-.submit-btn {
-  background: linear-gradient(45deg, #2ecc71, #27ae60);
-  color: white;
-  border: none;
-  padding: 12px 40px;
-  border-radius: 30px;
-  font-size: 18px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 5px 15px rgba(46, 204, 113, 0.3);
-}
-
-.submit-btn:hover:not(:disabled) {
-  transform: translateY(-3px);
-  box-shadow: 0 8px 20px rgba(46, 204, 113, 0.4);
-}
-
-.submit-btn:disabled {
-  background: linear-gradient(45deg, #bdc3c7, #95a5a6);
-  cursor: not-allowed;
-  transform: none;
-  box-shadow: none;
-}
-
 .loading-tip {
   margin-top: 20px;
   color: #3498db;

@@ -3,6 +3,23 @@
     <div class="challenge-header">
       <div class="current-perspective">{{ currentPerspective.title }}</div>
       <div class="perspective-hint-text">{{ currentPerspective.hint }}</div>
+      <div class="perspective-creation" v-if="currentPerspective.creation_prompts">
+        <h3>🧠 创作思维提示</h3>
+        
+        <div class="mb-3" v-if="currentPerspective.creation_prompts && currentPerspective.creation_prompts.thinking_directions">
+            <h4>思考方向：</h4>
+            <ul class="list-disc" v-for="item in currentPerspective.creation_prompts.thinking_directions">
+                <li>{{ item }}</li>
+            </ul>
+        </div>
+        
+        <div class="mb-3" v-if="currentPerspective.creation_prompts && currentPerspective.creation_prompts.questions_to_ask">
+            <h4>启发问题：</h4>
+            <ul class="list-disc" v-for="item in currentPerspective.creation_prompts.questions_to_ask">
+                <li>{{ item }}</li>
+            </ul>
+        </div>
+      </div>
     </div>
     <div v-if="isBlindBoxes==false">
       <span>没有想法？试试“生成思维视角”寻找创作视角。</span>
@@ -48,7 +65,7 @@
         <button
           class="submit-btn"
           :disabled="!challengeResponse.trim() || isPublishChallenge"
-          @click="submitChallenge"
+          @click="publishChallenge"
         >
           <span v-if="!isPublishChallenge">发表</span>
           <span v-else>
@@ -111,7 +128,7 @@ const props = defineProps({
   }
 });
 
-const emit = defineEmits(['submit-challenge', 'copy-feedback', 'submit-blindbox', 'view-example', 'prev-step']);
+const emit = defineEmits(['submit-challenge', 'publish-challenge', 'copy-feedback', 'submit-blindbox', 'view-example', 'prev-step']);
 
 const challengeResponse = ref('');
 // 配置工具栏扩展（按需引入）
@@ -135,6 +152,11 @@ const submitChallenge = () => {
   if (!challengeResponse.value.trim()) return;
   emit('submit-challenge',challengeResponse.value);
 };
+
+const publishChallenge = () => {
+  if (!challengeResponse.value.trim()) return;
+  emit('publish-challenge',challengeResponse.value);
+}
 
 const viewExample = () => {
   emit('view-example');
@@ -166,15 +188,24 @@ const getTagColor = (type) => {
 }
 
 .current-perspective {
-  font-size: 24px;
+  font-size: 22px;
   font-weight: 700;
   color: #2c3e50;
   margin-bottom: 10px;
 }
 
 .perspective-hint-text {
-  font-size: 18px;
+  font-size: 16px;
   color: #7f8c8d;
+}
+
+.perspective-creation {
+  text-align: left;
+  padding: 10px 50px;
+  font-size: 14px;
+}
+.perspective-creation .mb-3 {
+  padding:0 30px;
 }
 
 .response-input-area {
@@ -274,41 +305,6 @@ const getTagColor = (type) => {
   resize: none;
   transition: all 0.3s ease;
   font-family: inherit;
-}
-.submit-btn {
-  background: linear-gradient(45deg, #2ecc71, #27ae60);
-  color: white;
-  border: none;
-  padding: 12px 40px;
-  border-radius: 30px;
-  font-size: 18px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 5px 15px rgba(46, 204, 113, 0.3);
-}
-
-.submit-btn:hover:not(:disabled) {
-  transform: translateY(-3px);
-  box-shadow: 0 8px 20px rgba(46, 204, 113, 0.4);
-}
-
-.submit-btn:disabled {
-  background: linear-gradient(45deg, #bdc3c7, #95a5a6);
-  cursor: not-allowed;
-  transform: none;
-  box-shadow: none;
-}
-.prev-btn {
-  background: rgba(6, 182, 35, 0.1);
-  color: #27ae60;
-  border: 2px solid #27ae60;
-  padding: 12px 40px;
-  border-radius: 30px;
-  font-size: 18px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
 }
 button {
   margin-bottom: 5px;
