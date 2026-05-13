@@ -7,7 +7,7 @@ const ACCESS_SECRET = 'VrxvFQyuXT29dzTm8TAjfJ1y7b5XyoAu';
 // 创建一个配置好的axios实例
 const apiClient = axios.create({
   // 基础URL，根据您的API设置
-  baseURL: 'https://developer.zhihu.com',
+  baseURL: window.BASE_URL,
   
   // 请求超时时间（毫秒）
   timeout: 10000,

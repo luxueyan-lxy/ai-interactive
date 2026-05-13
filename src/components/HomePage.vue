@@ -5,6 +5,16 @@
       <button v-if="currentStage !== 'input'" class="reset-btn" @click="currentStage = 'input'">
         返回主页
       </button>
+      <div class="avatar-box" v-if="userInfo.avatar_path">
+        <!-- 圆形头像 -->
+         <el-tooltip :content="userInfo.fullname || '未登录'" placement="bottom">
+          <el-avatar
+            :size="50"
+            :src="userInfo.avatar_path"
+            alt="用户头像"
+          >未登录</el-avatar>
+         </el-tooltip>
+      </div>
     </div>
 
     <div class="app-container">
@@ -96,11 +106,35 @@ const showCopySuccess = ref(false);
 // API基础URL
 const API_BASE = window.API_BASE;
 
+const userInfo = ref({});
+
 // 初始化
 onMounted(() => {
   completedChallenges.value = 0;
+  getUserInfo();
   loadHotList();
 });
+
+const getUserInfo = async () => {
+  try {
+    const response = await axios.get(`${window.OPEN_API}/user`,
+      {
+        headers: {
+          'Authorization': `Bearer ${window.ACCESS_TOKEN}`,
+          'Content-Type': 'application/json',
+        }
+      }
+    );
+
+    const data = response.data;
+    if (data) {
+     userInfo.value = data;
+    }
+
+  } catch (error) {
+    
+  }
+}
 
 // 加载热搜列表
 const loadHotList = async () => {
@@ -518,6 +552,10 @@ body {
   cursor: pointer;
   transition: all 0.3s ease;
 }
+.avatar-box {
+  display: inline-block;
+  margin-left:10px;
+}
 
 button + button {
   margin-left: 10px;
@@ -558,6 +596,16 @@ button + button {
   cursor: pointer;
   transition: all 0.3s ease;
   box-sizing: border-box;
+}
+
+
+@media (max-width: 1000px) {
+  .app-container {
+    width: 100%;
+  }
+  .reset-container {
+    width: 100%;
+  }
 }
 
 </style>
